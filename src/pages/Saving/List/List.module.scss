@@ -11,3 +11,53 @@
         align-items: center;
     }
 }
+
+.search {
+    margin-right: 8px;
+    input {
+        border: 1px solid #ccc;
+        height: 35px;
+        padding: 0 12px;
+        width: 400px;
+        border-radius: 5px;
+    }
+}
+
+.list {
+    margin-top: 20px;
+    overflow-y: auto;
+    height: 480px;
+}
+
+.table {
+    width: 100%;
+    border-spacing: 0;
+    font-size: 1.4rem;
+
+    tr {
+        text-align: center;
+    }
+    thead {
+        position: sticky;
+        top: 0;
+        font-weight: 500;
+        color: #fff;
+        background-color: var(--primary);
+        height: 40px;
+        border-radius: 5px 5px 0 0;
+    }
+    tbody {
+        background-color: #fff;
+        height: 100px;
+        tr {
+            height: 40px;
+            border-radius: 5px;
+            &:hover {
+                background-color: #e2e2e2;
+            }
+        }
+    }
+    .td-action {
+        width: 274px;
+    }
+}

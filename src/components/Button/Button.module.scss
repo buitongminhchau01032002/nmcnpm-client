@@ -60,23 +60,34 @@
 
 .red {
     color: #fff;
-    background-color: var(--primary);
-    border-color: var(--primary);
+    background-color: #ed4747;
+    border-color: #ed4747;
 
     &:hover {
-        border-color: var(--primary);
-        background-color: #0b60b5;
+        border-color: #cf3e3e;
+        background-color: #cf3e3e;
     }
 }
 
 .green {
     color: #fff;
-    background-color: var(--primary);
-    border-color: var(--primary);
+    background-color: #63d16e;
+    border-color: #63d16e;
 
     &:hover {
-        border-color: var(--primary);
-        background-color: #0b60b5;
+        border-color: #49ad53;
+        background-color: #49ad53;
+    }
+}
+
+.yellow {
+    color: #fff;
+    background-color: #ebc564;
+    border-color: #ebc564;
+
+    &:hover {
+        border-color: #d8b458;
+        background-color: #d8b458;
     }
 }
 

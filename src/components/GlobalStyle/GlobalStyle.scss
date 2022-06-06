@@ -3,6 +3,7 @@
 
 :root {
     --primary: #0879e9;
+    --text-dark: #333;
 }
 
 * {
@@ -22,6 +23,20 @@ body {
     text-rendering: optimizeSpeed;
 }
 
+button,
+input,
+[tabindex] {
+    outline: none;
+    border: none;
+    font-family: 'Inter', sans-serif;
+}
+
 a {
     text-decoration: none;
+}
+
+.heading-list {
+    font-weight: 600;
+    margin-right: 15px;
+    color: var(--text-dark);
 }

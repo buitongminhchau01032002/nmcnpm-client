@@ -1,6 +1,6 @@
 .wrapper {
     display: inline-flex;
-    color: #393939;
+    color: var(--text);
     align-items: center;
     cursor: pointer;
     &:hover {

@@ -67,6 +67,18 @@ const MENU = [
         title: 'Báo cáo',
         icon: faChartSimple,
         to: '/baocao',
+        sub: [
+            {
+                title: 'Doanh số',
+                icon: faRightFromBracket,
+                to: '/doanhso',
+            },
+            {
+                title: 'Đóng/mở sổ',
+                icon: faRightToBracket,
+                to: '/dongmo',
+            },
+        ],
     },
     {
         title: 'Quy định',

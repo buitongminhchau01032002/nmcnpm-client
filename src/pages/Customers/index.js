@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
@@ -7,40 +8,23 @@ import ReloadBtn from '~/components/ReloadBtn';
 import styles from './Customers.module.scss';
 const cx = classNames.bind(styles);
 
-const listCustomer = [
-    {
-        id: 1,
-        identityNumber: '455662665',
-        name: 'Nguyễn Văn A',
-        address: 'Số 34, đường Gì Đó, phường Ngẫu Nhiên, quận 100, thành phố Hồ Chí Minh',
-    },
-    {
-        id: 2,
-        identityNumber: '455662665',
-        name: 'Nguyễn Văn A',
-        address: 'Số 34, đường Gì Đó, phường Ngẫu Nhiên, quận 100, thành phố Hồ Chí Minh',
-    },
-    {
-        id: 3,
-        identityNumber: '455662665',
-        name: 'Nguyễn Văn A',
-        address: 'Số 34, đường Gì Đó, phường Ngẫu Nhiên, quận 100, thành phố Hồ Chí Minh',
-    },
-    {
-        id: 4,
-        identityNumber: '455662665',
-        name: 'Nguyễn Văn A',
-        address: 'Số 34, đường Gì Đó, phường Ngẫu Nhiên, quận 100, thành phố Hồ Chí Minh',
-    },
-    {
-        id: 5,
-        identityNumber: '455662665',
-        name: 'Nguyễn Văn A',
-        address: 'Số 34, đường Gì Đó, phường Ngẫu Nhiên, quận 100, thành phố Hồ Chí Minh',
-    },
-];
-
 function Customers() {
+    const [listCustomer, setListCustomer] = useState([]);
+    useEffect(() => {
+        // Call api
+        fetch(`${process.env.REACT_APP_API_URL}/customer`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    setListCustomer(data.customers);
+                } else {
+                    setListCustomer([]);
+                }
+            })
+            .catch((error) => {
+                setListCustomer([]);
+            });
+    }, []);
     return (
         <div className={cx('wrapper')}>
             <div className={cx('top-bar')}>

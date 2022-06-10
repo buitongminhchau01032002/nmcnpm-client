@@ -32,8 +32,10 @@ function Create() {
     const [existedCustomer, setExistedCustomer] = useState(false);
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [pendingCreate, setPendingCreate] = useState(false);
 
     const handleCreateSaving = (values) => {
+        setPendingCreate(true);
         // Call api
         fetch(`${process.env.REACT_APP_API_URL}/saving`, {
             method: 'POST',
@@ -51,10 +53,12 @@ function Create() {
                     setIsSuccess(false);
                     setModalIsOpen(true);
                 }
+                setPendingCreate(false);
             })
             .catch((error) => {
                 setIsSuccess(false);
                 setModalIsOpen(true);
+                setPendingCreate(false);
             });
     };
 
@@ -238,7 +242,7 @@ function Create() {
                             Huỷ
                         </Button>
                         <Button
-                            disabled={!(formik.isValid && formik.dirty)}
+                            disabled={!(formik.isValid && formik.dirty) || pendingCreate}
                             primary
                             type="submit"
                             leftIcon={<FontAwesomeIcon icon={faCirclePlus} />}

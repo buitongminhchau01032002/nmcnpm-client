@@ -39,7 +39,7 @@ function List() {
                         <Button square gray leftIcon={<FontAwesomeIcon icon={faSearch} />}></Button>
                     </div>
 
-                    <Button primary leftIcon={<FontAwesomeIcon icon={faCirclePlus} />}>
+                    <Button to="/sotietkiem/moso" primary leftIcon={<FontAwesomeIcon icon={faCirclePlus} />}>
                         Mở sổ
                     </Button>
                 </div>

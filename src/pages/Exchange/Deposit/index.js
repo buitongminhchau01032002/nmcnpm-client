@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { useEffect } from 'react';
-import { faRightToBracket, faBackspace } from '@fortawesome/free-solid-svg-icons';
+import { faRightToBracket, faBackspace, faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
 import { useFormik } from 'formik';
@@ -262,7 +262,11 @@ function Deposit() {
                         </div>
                     </div>
                     <div className={cx('btn-group')}>
-                        <Button to="/sotietkiem/danhsach" yellow leftIcon={<FontAwesomeIcon icon={faBackspace} />}>
+                        <Button
+                            to="/sotietkiem/danhsach"
+                            yellow
+                            leftIcon={<FontAwesomeIcon icon={faCircleArrowLeft} />}
+                        >
                             Quay lại
                         </Button>
                         <Button

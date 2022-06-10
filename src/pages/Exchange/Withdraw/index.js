@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { useEffect } from 'react';
-import { faBackspace, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faBackspace, faCircleArrowLeft, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
 import { useFormik } from 'formik';
@@ -262,7 +262,11 @@ function Withdraw() {
                         </div>
                     </div>
                     <div className={cx('btn-group')}>
-                        <Button to="/sotietkiem/danhsach" yellow leftIcon={<FontAwesomeIcon icon={faBackspace} />}>
+                        <Button
+                            to="/sotietkiem/danhsach"
+                            yellow
+                            leftIcon={<FontAwesomeIcon icon={faCircleArrowLeft} />}
+                        >
                             Quay lại
                         </Button>
                         <Button

@@ -60,17 +60,15 @@
     th {
         white-space: nowrap;
     }
-
-    td {
+    .no-wrap {
         white-space: nowrap;
-        text-overflow: ellipsis;
     }
-
     td,
     th {
         padding: 0 12px;
     }
+
     .td-action {
-        width: 274px;
+        width: 110px;
     }
 }

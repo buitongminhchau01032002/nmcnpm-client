@@ -61,3 +61,10 @@
         width: 274px;
     }
 }
+
+.customer-link {
+    color: var(--text);
+    &:hover {
+        text-decoration: underline;
+    }
+}

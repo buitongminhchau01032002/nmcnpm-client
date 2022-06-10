@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { useEffect } from 'react';
-import { faRightToBracket, faBackspace, faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faRightToBracket, faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
 import { useFormik } from 'formik';

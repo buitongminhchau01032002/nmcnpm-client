@@ -6,6 +6,7 @@ import Button from '~/components/Button';
 import ReloadBtn from '~/components/ReloadBtn';
 
 import styles from './List.module.scss';
+import { Link } from 'react-router-dom';
 const cx = classNames.bind(styles);
 
 function List() {
@@ -63,7 +64,14 @@ function List() {
                                     <td>{index + 1}</td>
                                     <td>{saving.id}</td>
                                     <td>{saving.typeSaving.name}</td>
-                                    <td>{saving.customer.name}</td>
+                                    <td>
+                                        <Link
+                                            className={cx('customer-link')}
+                                            to={'/khachhang/chitiet/' + saving.customer.id}
+                                        >
+                                            {saving.customer.name}
+                                        </Link>
+                                    </td>
                                     <td>{saving.currentMoney}</td>
                                     <td className={cx('td-action')}>
                                         <Button

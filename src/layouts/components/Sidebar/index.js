@@ -44,7 +44,7 @@ const MENU = [
     {
         title: 'Khách hàng',
         icon: faUserGroup,
-        to: '/khachhang',
+        to: '/khachhang/danhsach',
     },
     {
         title: 'Giao dịch',

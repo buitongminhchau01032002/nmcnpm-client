@@ -21,8 +21,12 @@ const TITLES = [
         title: 'Chi tiết sổ',
     },
     {
-        path: '/sotietkiem/khachhang',
-        title: 'Khách hàng',
+        path: '/khachhang/danhsach',
+        title: 'Danh sách khách hàng',
+    },
+    {
+        path: '/khachhang/chitiet/:id',
+        title: 'Chi tiết khách hàng',
     },
 ];
 

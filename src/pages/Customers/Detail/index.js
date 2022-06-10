@@ -5,14 +5,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
 import { useFormik } from 'formik';
 import { useParams, useNavigate } from 'react-router-dom';
-import moment from 'moment';
 import Button from '~/components/Button';
 
 import styles from './Detail.module.scss';
 import Modall from '~/components/Modall';
 const cx = classNames.bind(styles);
-
-const minMoney = 100000;
 
 const validationSchema = Yup.object({
     identityNumber: Yup.string()
@@ -20,17 +17,12 @@ const validationSchema = Yup.object({
         .max(12, 'Chứng minh nhân dân phải không quá 12 số')
         .min(9, 'Chứng minh nhân dân phải từ 9 số')
         .required('Trường này bắt buộc'),
-    nameCustomer: Yup.string().max(50, 'Tên không được quá 50 kí tự').required('Trường này bắt buộc'),
-    addressCustomer: Yup.string().max(250, 'Địa chỉ không được quá 250 kí tự').required('Trường này bắt buộc'),
-    money: Yup.number()
-        .typeError('Tiền gởi phải là số')
-        .min(minMoney, `Tiền gửi tối thiểu là ${minMoney}`)
-        .required('Trường này bắt buộc'),
+    name: Yup.string().max(50, 'Tên không được quá 50 kí tự').required('Trường này bắt buộc'),
+    address: Yup.string().max(250, 'Địa chỉ không được quá 250 kí tự').required('Trường này bắt buộc'),
 });
 
 function Detail() {
-    const [saving, setSaving] = useState({ id: '' });
-    const [typeSavings, setTypeSavings] = useState([]);
+    const [customer, setCustomer] = useState({ id: '' });
     const [existedCustomer, setExistedCustomer] = useState(false);
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -38,10 +30,10 @@ function Detail() {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    const handleUpdateSaving = (values) => {
+    const handleUpdateCustomer = (values) => {
         setPendingUpdate(true);
         // Call api
-        fetch(`${process.env.REACT_APP_API_URL}/saving/${id}`, {
+        fetch(`${process.env.REACT_APP_API_URL}/customer/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
@@ -69,56 +61,31 @@ function Detail() {
     const formik = useFormik({
         initialValues: {
             identityNumber: '',
-            typeSavingId: '',
-            nameCustomer: '',
-            addressCustomer: '',
-            dateCreate: moment().format('YYYY-MM-DD'),
-            money: 0,
+            name: '',
+            address: '',
         },
         validationSchema,
-        onSubmit: handleUpdateSaving,
+        onSubmit: handleUpdateCustomer,
     });
 
     useEffect(() => {
-        // Call api type saving
-        fetch(`${process.env.REACT_APP_API_URL}/typesaving`)
+        // Call api customer
+        fetch(`${process.env.REACT_APP_API_URL}/customer/${id}`)
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
-                    setTypeSavings(data.typeSavings);
-                } else {
-                    setTypeSavings([]);
-                }
-            })
-            .catch((error) => {
-                setTypeSavings([]);
-            });
-    }, []);
-
-    useEffect(() => {
-        // Call api saving
-        fetch(`${process.env.REACT_APP_API_URL}/saving/${id}`)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success) {
-                    setSaving(data.saving);
-                    console.log(data.saving.typeSavingId);
-                    // formik.setFieldValue('identityNumber', data.saving.customer.identityNumber || '');
+                    setCustomer(data.customer);
                     formik.setValues({
-                        identityNumber: data.saving.customer.identityNumber || '',
-                        typeSavingId: data.saving.typeSavingId || '',
-                        nameCustomer: data.saving.customer.name || '',
-                        addressCustomer: data.saving.customer.address || '',
-                        dateCreate:
-                            moment(data.saving.dateCreate).format('YYYY-MM-DD') || moment().format('YYYY-MM-DD'),
-                        money: data.saving.currentMoney || 0,
+                        identityNumber: data.customer.identityNumber || '',
+                        name: data.customer.name || '',
+                        address: data.customer.address || '',
                     });
                 } else {
-                    setSaving({});
+                    setCustomer({});
                 }
             })
             .catch((error) => {
-                setSaving({});
+                setCustomer({});
             });
     }, []);
 
@@ -127,12 +94,12 @@ function Detail() {
         fetch(`${process.env.REACT_APP_API_URL}/customer/find/identity/${formik.values.identityNumber}`)
             .then((response) => response.json())
             .then((data) => {
-                if (data.success) {
+                if (data.success && data.customer.id !== customer.id) {
                     console.log('set value');
                     const customer = data.customer;
                     setExistedCustomer(true);
-                    formik.setFieldValue('nameCustomer', customer.name);
-                    formik.setFieldValue('addressCustomer', customer.address);
+                    formik.setFieldValue('name', customer.name);
+                    formik.setFieldValue('address', customer.address);
                 } else {
                     setExistedCustomer(false);
                 }
@@ -149,7 +116,7 @@ function Detail() {
                 buttons={
                     <>
                         {isSuccess && (
-                            <Button primary to="/sotietkiem/danhsach">
+                            <Button primary to="/khachhang/danhsach">
                                 Danh sách
                             </Button>
                         )}
@@ -161,14 +128,14 @@ function Detail() {
                 }
                 heading="Thông báo"
             >
-                {isSuccess ? 'Cập nhật sổ thành công' : 'Cập nhật sổ không thành công'}
+                {isSuccess ? 'Cập nhật khách hàng thành công' : 'Cập nhật khách hàng không thành công'}
             </Modall>
             <form onSubmit={formik.handleSubmit}>
                 <div className={cx('body')}>
                     <div className={cx('input-group')}>
                         <div className={cx('id-label')}>
-                            <label>Mã sổ:</label>
-                            <div className={cx('id')}>{saving.id}</div>
+                            <label>Mã khách hàng:</label>
+                            <div className={cx('id')}>{customer.id}</div>
                         </div>
                         <div className={cx('row')}>
                             <div
@@ -186,27 +153,9 @@ function Detail() {
                                 />
                                 <div className={cx('error-message')}>{formik.errors.identityNumber}</div>
                             </div>
-                            <div className={cx('input')}>
-                                <label>Loại tiết kiệm</label>
-                                <select
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    value={formik.values.typeSavingId}
-                                    name="typeSavingId"
-                                >
-                                    {typeSavings.map((typeSaving) => (
-                                        <option key={typeSaving.id} value={typeSaving.id}>
-                                            {typeSaving.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <div className={cx('error-message')}></div>
-                            </div>
-                        </div>
-                        <div className={cx('row')}>
                             <div
                                 className={cx('input', {
-                                    error: formik.touched.nameCustomer && formik.errors.nameCustomer,
+                                    error: formik.touched.name && formik.errors.name,
                                 })}
                             >
                                 <label>Tên khách hàng</label>
@@ -214,32 +163,18 @@ function Detail() {
                                     type="text"
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
-                                    value={formik.values.nameCustomer}
+                                    value={formik.values.name}
                                     disabled={existedCustomer}
-                                    name="nameCustomer"
+                                    name="name"
                                 />
-                                <div className={cx('error-message')}>{formik.errors.nameCustomer}</div>
-                            </div>
-                            <div
-                                className={cx('input', {
-                                    error: formik.touched.dateCreate && formik.errors.dateCreate,
-                                })}
-                            >
-                                <label>Ngày mở sổ</label>
-                                <input
-                                    type="date"
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    value={formik.values.dateCreate}
-                                    name="dateCreate"
-                                />
-                                <div className={cx('error-message')}>{formik.errors.dateCreate}</div>
+                                <div className={cx('error-message')}>{formik.errors.name}</div>
                             </div>
                         </div>
+
                         <div className={cx('row')}>
                             <div
-                                className={cx('input', {
-                                    error: formik.touched.addressCustomer && formik.errors.addressCustomer,
+                                className={cx('input', 'full-width', {
+                                    error: formik.touched.address && formik.errors.address,
                                 })}
                             >
                                 <label>Địa chỉ</label>
@@ -247,26 +182,11 @@ function Detail() {
                                     type="text"
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
-                                    value={formik.values.addressCustomer}
+                                    value={formik.values.address}
                                     disabled={existedCustomer}
-                                    name="addressCustomer"
+                                    name="address"
                                 />
-                                <div className={cx('error-message')}>{formik.errors.addressCustomer}</div>
-                            </div>
-                            <div
-                                className={cx('input', {
-                                    error: formik.touched.money && formik.errors.money,
-                                })}
-                            >
-                                <label>Số tiền gởi</label>
-                                <input
-                                    type="text"
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    value={formik.values.money}
-                                    name="money"
-                                />
-                                <div className={cx('error-message')}>{formik.errors.money}</div>
+                                <div className={cx('error-message')}>{formik.errors.address}</div>
                             </div>
                         </div>
                     </div>
@@ -279,7 +199,7 @@ function Detail() {
                             Quay lại
                         </Button>
                         <Button
-                            disabled={!(formik.isValid && formik.dirty) || pendingUpdate}
+                            disabled={!(formik.isValid && formik.dirty) || pendingUpdate || existedCustomer}
                             primary
                             type="submit"
                             leftIcon={<FontAwesomeIcon icon={faCircleCheck} />}

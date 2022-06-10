@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import { faCircleXmark, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,22 +8,8 @@ import moment from 'moment';
 import Button from '~/components/Button';
 
 import styles from './Create.module.scss';
+import Modall from '~/components/Modall';
 const cx = classNames.bind(styles);
-
-const typeSavings = [
-    {
-        id: 1,
-        name: 'Không kì hạn',
-    },
-    {
-        id: 2,
-        name: '3 tháng',
-    },
-    {
-        id: 3,
-        name: '6 tháng',
-    },
-];
 
 const minMoney = 100000;
 
@@ -32,8 +19,8 @@ const validationSchema = Yup.object({
         .max(12, 'Chứng minh nhân dân phải không quá 12 số')
         .min(9, 'Chứng minh nhân dân phải từ 9 số')
         .required('Trường này bắt buộc'),
-    customerName: Yup.string().max(50, 'Tên không được quá 50 kí tự').required('Trường này bắt buộc'),
-    customerAddress: Yup.string().max(250, 'Địa chỉ không được quá 250 kí tự').required('Trường này bắt buộc'),
+    nameCustomer: Yup.string().max(50, 'Tên không được quá 50 kí tự').required('Trường này bắt buộc'),
+    addressCustomer: Yup.string().max(250, 'Địa chỉ không được quá 250 kí tự').required('Trường này bắt buộc'),
     money: Yup.number()
         .typeError('Tiền gởi phải là số')
         .min(minMoney, `Tiền gửi tối thiểu là ${minMoney}`)
@@ -41,23 +28,108 @@ const validationSchema = Yup.object({
 });
 
 function Create() {
+    const [typeSavings, setTypeSavings] = useState([]);
+    const [existedCustomer, setExistedCustomer] = useState(false);
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    const handleCreateSaving = (values) => {
+        // Call api
+        fetch(`${process.env.REACT_APP_API_URL}/saving`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify(values),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    setModalIsOpen(true);
+                    setIsSuccess(true);
+                } else {
+                    setIsSuccess(false);
+                    setModalIsOpen(true);
+                }
+            })
+            .catch((error) => {
+                setIsSuccess(false);
+                setModalIsOpen(true);
+            });
+    };
+
     const formik = useFormik({
         initialValues: {
             identityNumber: '',
-            typeSavingId: typeSavings[0].id,
-            customerName: '',
-            customerAddress: '',
+            typeSavingId: '',
+            nameCustomer: '',
+            addressCustomer: '',
             dateCreate: moment().format('YYYY-MM-DD'),
-            money: '',
+            money: 0,
         },
         validationSchema,
-        onSubmit: (values) => {
-            alert(JSON.stringify(values, null, 2));
-        },
+        onSubmit: handleCreateSaving,
     });
-    console.log(formik.errors);
+
+    useEffect(() => {
+        // Call api
+        fetch(`${process.env.REACT_APP_API_URL}/typesaving`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    setTypeSavings(data.typeSavings);
+                    formik.setFieldValue('typeSavingId', data.typeSavings[0].id);
+                } else {
+                    setTypeSavings([]);
+                }
+            })
+            .catch((error) => {
+                setTypeSavings([]);
+            });
+    }, []);
+
+    useEffect(() => {
+        // Call api customer
+        fetch(`${process.env.REACT_APP_API_URL}/customer/find/identity/${formik.values.identityNumber}`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    console.log('set value');
+                    const customer = data.customer;
+                    setExistedCustomer(true);
+                    formik.setFieldValue('nameCustomer', customer.name);
+                    formik.setFieldValue('addressCustomer', customer.address);
+                } else {
+                    setExistedCustomer(false);
+                }
+            })
+            .catch((error) => {
+                //
+                console.log('Failed call api customer');
+            });
+    }, [formik.values.identityNumber]);
+
     return (
         <div className={cx('wrapper')}>
+            <Modall
+                isOpen={modalIsOpen}
+                buttons={
+                    <>
+                        {isSuccess && (
+                            <Button primary to="/sotietkiem/danhsach">
+                                Danh sách
+                            </Button>
+                        )}
+
+                        <Button yellow onClick={() => setModalIsOpen(false)}>
+                            Đóng
+                        </Button>
+                    </>
+                }
+                heading="Thông báo"
+            >
+                {isSuccess ? 'Mở sổ thành công' : 'Mở sổ không thành công'}
+            </Modall>
             <form onSubmit={formik.handleSubmit}>
                 <div className={cx('body')}>
                     <div className={cx('input-group')}>
@@ -97,7 +169,7 @@ function Create() {
                         <div className={cx('row')}>
                             <div
                                 className={cx('input', {
-                                    error: formik.touched.customerName && formik.errors.customerName,
+                                    error: formik.touched.nameCustomer && formik.errors.nameCustomer,
                                 })}
                             >
                                 <label>Tên khách hàng</label>
@@ -105,10 +177,11 @@ function Create() {
                                     type="text"
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
-                                    value={formik.values.customerName}
-                                    name="customerName"
+                                    value={formik.values.nameCustomer}
+                                    disabled={existedCustomer}
+                                    name="nameCustomer"
                                 />
-                                <div className={cx('error-message')}>{formik.errors.customerName}</div>
+                                <div className={cx('error-message')}>{formik.errors.nameCustomer}</div>
                             </div>
                             <div
                                 className={cx('input', {
@@ -129,7 +202,7 @@ function Create() {
                         <div className={cx('row')}>
                             <div
                                 className={cx('input', {
-                                    error: formik.touched.customerAddress && formik.errors.customerAddress,
+                                    error: formik.touched.addressCustomer && formik.errors.addressCustomer,
                                 })}
                             >
                                 <label>Địa chỉ</label>
@@ -137,10 +210,11 @@ function Create() {
                                     type="text"
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
-                                    value={formik.values.customerAddress}
-                                    name="customerAddress"
+                                    value={formik.values.addressCustomer}
+                                    disabled={existedCustomer}
+                                    name="addressCustomer"
                                 />
-                                <div className={cx('error-message')}>{formik.errors.customerAddress}</div>
+                                <div className={cx('error-message')}>{formik.errors.addressCustomer}</div>
                             </div>
                             <div
                                 className={cx('input', {
@@ -166,6 +240,7 @@ function Create() {
                         <Button
                             disabled={!(formik.isValid && formik.dirty)}
                             primary
+                            type="submit"
                             leftIcon={<FontAwesomeIcon icon={faCirclePlus} />}
                         >
                             Mở sổ

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { faCirclePlus, faEye, faRightFromBracket, faRightToBracket, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
@@ -7,156 +8,24 @@ import ReloadBtn from '~/components/ReloadBtn';
 import styles from './List.module.scss';
 const cx = classNames.bind(styles);
 
-const listSaving = [
-    {
-        id: 1,
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn A',
-        },
-        money: 256000,
-    },
-    {
-        id: 2,
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn A',
-        },
-        money: 256000,
-    },
-    {
-        id: 3,
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn A',
-        },
-        money: 256000,
-    },
-    {
-        id: 4,
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn A',
-        },
-        money: 256000,
-    },
-    {
-        id: 5,
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn A',
-        },
-        money: 256000,
-    },
-
-    {
-        id: 6,
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn A',
-        },
-        money: 256000,
-    },
-    {
-        id: 7,
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn A',
-        },
-        money: 256000,
-    },
-    {
-        id: 8,
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn A',
-        },
-        money: 256000,
-    },
-    {
-        id: 9,
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn A',
-        },
-        money: 256000,
-    },
-    {
-        id: 10,
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn A',
-        },
-        money: 256000,
-    },
-    {
-        id: 11,
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn A',
-        },
-        money: 256000,
-    },
-
-    {
-        id: 12,
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn A',
-        },
-        money: 256000,
-    },
-];
-
 function List() {
+    const [listSaving, setListSaving] = useState([]);
+    useEffect(() => {
+        // Call api
+        fetch(`${process.env.REACT_APP_API_URL}/saving`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    setListSaving(data.savings);
+                } else {
+                    setListSaving([]);
+                }
+            })
+            .catch((error) => {
+                setListSaving([]);
+            });
+    }, []);
+
     return (
         <div className={cx('wrapper')}>
             <div className={cx('top-bar')}>
@@ -188,43 +57,47 @@ function List() {
                         </tr>
                     </thead>
                     <tbody>
-                        {listSaving.map((saving, index) => (
-                            <tr key={saving.id}>
-                                <td>{index + 1}</td>
-                                <td>{saving.id}</td>
-                                <td>{saving.typeSaving.name}</td>
-                                <td>{saving.customer.name}</td>
-                                <td>{saving.money}</td>
-                                <td className={cx('td-action')}>
-                                    <Button
-                                        to={'/sotietkiem/chitiet/' + saving.id}
-                                        primary
-                                        small
-                                        leftIcon={<FontAwesomeIcon icon={faEye} />}
-                                    >
-                                        Xem
-                                    </Button>
+                        {listSaving ? (
+                            listSaving.map((saving, index) => (
+                                <tr key={saving.id}>
+                                    <td>{index + 1}</td>
+                                    <td>{saving.id}</td>
+                                    <td>{saving.typeSaving.name}</td>
+                                    <td>{saving.customer.name}</td>
+                                    <td>{saving.currentMoney}</td>
+                                    <td className={cx('td-action')}>
+                                        <Button
+                                            to={'/sotietkiem/chitiet/' + saving.id}
+                                            primary
+                                            small
+                                            leftIcon={<FontAwesomeIcon icon={faEye} />}
+                                        >
+                                            Xem
+                                        </Button>
 
-                                    <Button
-                                        to={'/giaodich/goitien?redirect=' + saving.id}
-                                        green
-                                        small
-                                        leftIcon={<FontAwesomeIcon icon={faRightToBracket} />}
-                                    >
-                                        Gởi
-                                    </Button>
+                                        <Button
+                                            to={'/giaodich/goitien?redirect=' + saving.id}
+                                            green
+                                            small
+                                            leftIcon={<FontAwesomeIcon icon={faRightToBracket} />}
+                                        >
+                                            Gởi
+                                        </Button>
 
-                                    <Button
-                                        to={'/giaodich/ruttien?redirect=' + saving.id}
-                                        yellow
-                                        small
-                                        leftIcon={<FontAwesomeIcon icon={faRightFromBracket} />}
-                                    >
-                                        Rút
-                                    </Button>
-                                </td>
-                            </tr>
-                        ))}
+                                        <Button
+                                            to={'/giaodich/ruttien?redirect=' + saving.id}
+                                            yellow
+                                            small
+                                            leftIcon={<FontAwesomeIcon icon={faRightFromBracket} />}
+                                        >
+                                            Rút
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <div>Không có sổ tiết kiệm</div>
+                        )}
                     </tbody>
                 </table>
             </div>

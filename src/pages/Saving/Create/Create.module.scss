@@ -46,6 +46,9 @@
         &:focus {
             border: 1px solid var(--primary);
         }
+        &:disabled {
+            background-color: #e1e1e1;
+        }
     }
     &.error {
         input {

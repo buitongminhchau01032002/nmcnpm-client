@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { faRightToBracket, faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
@@ -8,162 +8,56 @@ import moment from 'moment';
 import Button from '~/components/Button';
 
 import styles from './Deposit.module.scss';
+import Modall from '~/components/Modall';
+
 const cx = classNames.bind(styles);
 
-const validationSchema = Yup.object({
-    id: Yup.string().required('Trường này bắt buộc'),
-});
-
-const listSaving = [
-    {
-        id: '1',
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn B',
-        },
-        money: 256000,
-    },
-    {
-        id: '2',
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn C',
-        },
-        money: 256000,
-    },
-    {
-        id: '3',
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn D',
-        },
-        money: 256000,
-    },
-    {
-        id: '4',
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn E',
-        },
-        money: 256000,
-    },
-    {
-        id: '5',
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn F',
-        },
-        money: 256000,
-    },
-
-    {
-        id: '6',
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn G',
-        },
-        money: 256000,
-    },
-    {
-        id: '7',
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn H',
-        },
-        money: 256000,
-    },
-    {
-        id: '8',
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn I',
-        },
-        money: 256000,
-    },
-    {
-        id: '9',
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn J',
-        },
-        money: 256000,
-    },
-    {
-        id: '10',
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn K',
-        },
-        money: 256000,
-    },
-    {
-        id: '11',
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn L',
-        },
-        money: 256000,
-    },
-
-    {
-        id: '12',
-        typeSaving: {
-            id: 1,
-            name: 'Không kì hạn',
-        },
-        customer: {
-            id: 1,
-            name: 'Nguyễn Văn M',
-        },
-        money: 256000,
-    },
-];
-
 function Deposit() {
+    const [pendingCreate, setPendingCreate] = useState(false);
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [minMoney, setMinMoney] = useState(0);
+
+    const handleCreateDeposit = (values) => {
+        setPendingCreate(true);
+        // Call api
+        fetch(`${process.env.REACT_APP_API_URL}/deposit`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({
+                savingId: values.id,
+                dateDeposit: values.dateDeposit,
+                money: values.moneyDeposit,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    setModalIsOpen(true);
+                    setIsSuccess(true);
+                } else {
+                    setIsSuccess(false);
+                    setModalIsOpen(true);
+                }
+                setPendingCreate(false);
+            })
+            .catch((error) => {
+                setIsSuccess(false);
+                setModalIsOpen(true);
+                setPendingCreate(false);
+            });
+    };
+
+    const validationSchema = Yup.object({
+        id: Yup.string().required('Trường này bắt buộc'),
+        moneyDeposit: Yup.number()
+            .typeError('Tiền gởi phải là số')
+            .min(minMoney, `Tiền gởi tối thiểu là ${minMoney}`)
+            .required('Trường này bắt buộc'),
+    });
+
     const formik = useFormik({
         initialValues: {
             id: '',
@@ -172,30 +66,55 @@ function Deposit() {
             moneyDeposit: '',
         },
         validationSchema,
-        onSubmit: (values) => {
-            alert(JSON.stringify(values, null, 2));
-        },
+        onSubmit: handleCreateDeposit,
     });
 
-    const getCustomerName = (id) => {
-        let customerName = 'Không xác định';
-        console.log(id);
-        listSaving.forEach((saving) => {
-            console.log('saving', saving);
-            if (saving.id === id) {
-                customerName = saving.customer.name;
-            }
-        });
-        return customerName;
-    };
-
     useEffect(() => {
-        // Call api
-        formik.setFieldValue('customerName', getCustomerName(formik.values.id));
+        // Call api one saving
+        fetch(`${process.env.REACT_APP_API_URL}/saving/${formik.values.id}`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    formik.setFieldValue('customerName', data.saving.customer.name);
+                } else {
+                    formik.setFieldValue('customerName', 'Không xác định');
+                }
+            })
+            .catch((error) => {
+                formik.setFieldValue('customerName', 'Không xác định');
+            });
     }, [formik.values.id]);
 
+    useEffect(() => {
+        // Call api min money
+        fetch(`${process.env.REACT_APP_API_URL}/rule/minMoneyDeposit`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    setMinMoney(data.rule.value);
+                } else {
+                    setMinMoney();
+                }
+            })
+            .catch((error) => {
+                setMinMoney();
+            });
+    }, []);
     return (
         <div className={cx('wrapper')}>
+            <Modall
+                isOpen={modalIsOpen}
+                buttons={
+                    <>
+                        <Button yellow onClick={() => setModalIsOpen(false)}>
+                            Đóng
+                        </Button>
+                    </>
+                }
+                heading="Thông báo"
+            >
+                {isSuccess ? 'Gởi tiền thành công' : 'Gởi tiền không thành công'}
+            </Modall>
             <form onSubmit={formik.handleSubmit}>
                 <div className={cx('body')}>
                     <div className={cx('input-group')}>
@@ -270,7 +189,7 @@ function Deposit() {
                             Quay lại
                         </Button>
                         <Button
-                            disabled={!(formik.isValid && formik.dirty)}
+                            disabled={!(formik.isValid && formik.dirty) || pendingCreate}
                             primary
                             leftIcon={<FontAwesomeIcon icon={faRightToBracket} />}
                         >

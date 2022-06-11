@@ -11,28 +11,27 @@ import styles from './Create.module.scss';
 import Modall from '~/components/Modall';
 const cx = classNames.bind(styles);
 
-const minMoney = 100000;
-
-const validationSchema = Yup.object({
-    identityNumber: Yup.string()
-        .matches(/^[0-9]+$/, 'Chứng minh nhân dân phải là số')
-        .max(12, 'Chứng minh nhân dân phải không quá 12 số')
-        .min(9, 'Chứng minh nhân dân phải từ 9 số')
-        .required('Trường này bắt buộc'),
-    nameCustomer: Yup.string().max(50, 'Tên không được quá 50 kí tự').required('Trường này bắt buộc'),
-    addressCustomer: Yup.string().max(250, 'Địa chỉ không được quá 250 kí tự').required('Trường này bắt buộc'),
-    money: Yup.number()
-        .typeError('Tiền gởi phải là số')
-        .min(minMoney, `Tiền gửi tối thiểu là ${minMoney}`)
-        .required('Trường này bắt buộc'),
-});
-
 function Create() {
     const [typeSavings, setTypeSavings] = useState([]);
     const [existedCustomer, setExistedCustomer] = useState(false);
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [pendingCreate, setPendingCreate] = useState(false);
+    const [minMoney, setMinMoney] = useState(0);
+
+    const validationSchema = Yup.object({
+        identityNumber: Yup.string()
+            .matches(/^[0-9]+$/, 'Chứng minh nhân dân phải là số')
+            .max(12, 'Chứng minh nhân dân phải không quá 12 số')
+            .min(9, 'Chứng minh nhân dân phải từ 9 số')
+            .required('Trường này bắt buộc'),
+        nameCustomer: Yup.string().max(50, 'Tên không được quá 50 kí tự').required('Trường này bắt buộc'),
+        addressCustomer: Yup.string().max(250, 'Địa chỉ không được quá 250 kí tự').required('Trường này bắt buộc'),
+        money: Yup.number()
+            .typeError('Tiền gởi phải là số')
+            .min(minMoney, `Tiền gửi tối thiểu là ${minMoney}`)
+            .required('Trường này bắt buộc'),
+    });
 
     const handleCreateSaving = (values) => {
         setPendingCreate(true);
@@ -74,6 +73,22 @@ function Create() {
         validationSchema,
         onSubmit: handleCreateSaving,
     });
+
+    useEffect(() => {
+        // Call api min money
+        fetch(`${process.env.REACT_APP_API_URL}/rule/minMoneyBegin`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    setMinMoney(data.rule.value);
+                } else {
+                    setMinMoney();
+                }
+            })
+            .catch((error) => {
+                setMinMoney();
+            });
+    }, []);
 
     useEffect(() => {
         // Call api type saving

@@ -32,12 +32,7 @@ function Customers() {
                     <p className="heading-list">Danh sách khách hàng</p>
                     <ReloadBtn />
                 </div>
-                <div className={cx('right')}>
-                    <div className={cx('search')}>
-                        <input type="search" placeholder="Tra cứu" />
-                        <Button square gray leftIcon={<FontAwesomeIcon icon={faSearch} />}></Button>
-                    </div>
-                </div>
+                <div className={cx('right')}></div>
             </div>
             <div className={cx('list')}>
                 <table className={cx('table')}>

@@ -76,7 +76,7 @@ function Create() {
     });
 
     useEffect(() => {
-        // Call api
+        // Call api type saving
         fetch(`${process.env.REACT_APP_API_URL}/typesaving`)
             .then((response) => response.json())
             .then((data) => {

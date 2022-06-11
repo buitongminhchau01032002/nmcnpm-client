@@ -41,6 +41,7 @@
     box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
     border-color: rgba(22, 24, 35, 0.12);
 
+    &.active,
     &:hover {
         border-color: rgba(22, 24, 35, 0.2);
         background-color: rgba(22, 24, 35, 0.03);
@@ -52,6 +53,7 @@
     background-color: var(--primary);
     border-color: var(--primary);
 
+    &.active,
     &:hover {
         border-color: #0b60b5;
         background-color: #0b60b5;
@@ -63,6 +65,7 @@
     background-color: #ed4747;
     border-color: #ed4747;
 
+    &.active,
     &:hover {
         border-color: #cf3e3e;
         background-color: #cf3e3e;
@@ -74,6 +77,7 @@
     background-color: #63d16e;
     border-color: #63d16e;
 
+    &.active,
     &:hover {
         border-color: #49ad53;
         background-color: #49ad53;
@@ -85,6 +89,7 @@
     background-color: #ebc564;
     border-color: #ebc564;
 
+    &.active,
     &:hover {
         border-color: #d8b458;
         background-color: #d8b458;
@@ -96,6 +101,7 @@
     background-color: #e0e0e0;
     border-color: #e0e0e0;
 
+    &.active,
     &:hover {
         border-color: #d1d1d1;
         background-color: #d1d1d1;
@@ -106,6 +112,7 @@
     color: var(--primary);
     border-color: currentColor;
 
+    &.active,
     &:hover {
         border-color: currentColor;
         background-color: rgba(254, 44, 85, 0.06);
@@ -113,6 +120,7 @@
 }
 
 .text {
+    &.active,
     &:hover {
         text-decoration: underline;
     }

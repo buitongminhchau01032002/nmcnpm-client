@@ -1,6 +1,15 @@
+import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
-import { faCirclePlus, faEye, faRightFromBracket, faRightToBracket, faSearch } from '@fortawesome/free-solid-svg-icons';
+import {
+    faCirclePlus,
+    faEye,
+    faRightFromBracket,
+    faRightToBracket,
+    faSearch,
+    faTrashCan,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import HeadlessTippy from '@tippyjs/react/headless';
 import classNames from 'classnames/bind';
 import Button from '~/components/Button';
 import ReloadBtn from '~/components/ReloadBtn';
@@ -10,9 +19,71 @@ import { Link } from 'react-router-dom';
 const cx = classNames.bind(styles);
 
 function List() {
+    const [typeSavings, setTypeSavings] = useState([]);
     const [listSaving, setListSaving] = useState([]);
+    const [activeFilter, setActiveFilter] = useState(false);
+    const [showFilter, setShowFilter] = useState(false);
+    const handleFilter = (values) => {
+        const filterObject = {};
+        if (values.id) {
+            filterObject.id = values.id;
+        }
+        if (values.typeSavingId) {
+            filterObject.typeSavingId = values.typeSavingId;
+        }
+        if (values.nameCustomer) {
+            filterObject.nameCustomer = values.nameCustomer;
+        }
+        if (values.currentMoney) {
+            filterObject.currentMoney = values.currentMoney;
+        }
+        if (values.currentMoney) {
+            filterObject.currentMoney = values.currentMoney;
+        }
+        setActiveFilter(Object.keys(filterObject).length === 0 ? false : true);
+        // Call api saving
+        fetch(`${process.env.REACT_APP_API_URL}/saving/filter?` + new URLSearchParams(filterObject))
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    setListSaving(data.savings);
+                } else {
+                    setListSaving([]);
+                }
+            })
+            .catch((error) => {
+                setListSaving([]);
+            });
+        setShowFilter(false);
+    };
+    const formikFilter = useFormik({
+        initialValues: {
+            id: '',
+            nameCustomer: '',
+            typeSavingId: '',
+            currentMoney: '',
+        },
+        onSubmit: handleFilter,
+    });
+
     useEffect(() => {
-        // Call api
+        // Call api type saving
+        fetch(`${process.env.REACT_APP_API_URL}/typesaving`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    setTypeSavings(data.typeSavings);
+                } else {
+                    setTypeSavings([]);
+                }
+            })
+            .catch((error) => {
+                setTypeSavings([]);
+            });
+    }, []);
+
+    useEffect(() => {
+        // Call api saving
         fetch(`${process.env.REACT_APP_API_URL}/saving`)
             .then((response) => response.json())
             .then((data) => {
@@ -27,6 +98,31 @@ function List() {
             });
     }, []);
 
+    const handleResetFilter = (e) => {
+        e.preventDefault();
+        formikFilter.setValues({
+            id: '',
+            nameCustomer: '',
+            typeSavingId: '',
+            currentMoney: '',
+        });
+        setActiveFilter(false);
+
+        // Call api saving
+        fetch(`${process.env.REACT_APP_API_URL}/saving`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    setListSaving(data.savings);
+                } else {
+                    setListSaving([]);
+                }
+            })
+            .catch((error) => {
+                setListSaving([]);
+            });
+    };
+
     return (
         <div className={cx('wrapper')}>
             <div className={cx('top-bar')}>
@@ -35,9 +131,93 @@ function List() {
                     <ReloadBtn />
                 </div>
                 <div className={cx('right')}>
-                    <div className={cx('search')}>
-                        <input type="search" placeholder="Tra cứu" />
-                        <Button square gray leftIcon={<FontAwesomeIcon icon={faSearch} />}></Button>
+                    <div>
+                        <HeadlessTippy
+                            interactive
+                            visible={showFilter}
+                            render={(attrs) => (
+                                <div className={cx('filter-panel')} {...attrs}>
+                                    <div className={cx('header')}>Tra cứu sổ tiết kiệm</div>
+                                    <form onSubmit={formikFilter.handleSubmit}>
+                                        <div className={cx('content')}>
+                                            <div className={cx('input')}>
+                                                <label>Mã sổ:</label>
+                                                <input
+                                                    type="text"
+                                                    onChange={formikFilter.handleChange}
+                                                    value={formikFilter.values.id}
+                                                    name="id"
+                                                    placeholder="Mã sổ"
+                                                />
+                                            </div>
+                                            <div className={cx('input')}>
+                                                <label>Loại tiết kiệm:</label>
+                                                <select
+                                                    onChange={formikFilter.handleChange}
+                                                    value={formikFilter.values.typeSavingId}
+                                                    name="typeSavingId"
+                                                >
+                                                    <option value="">Tất cả</option>
+                                                    {typeSavings.map((typeSaving) => (
+                                                        <option key={typeSaving.id} value={typeSaving.id}>
+                                                            {typeSaving.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className={cx('input')}>
+                                                <label>Khách hàng:</label>
+                                                <input
+                                                    type="text"
+                                                    onChange={formikFilter.handleChange}
+                                                    value={formikFilter.values.nameCustomer}
+                                                    name="nameCustomer"
+                                                    placeholder="Tên khách hàng"
+                                                />
+                                            </div>
+                                            <div className={cx('input')}>
+                                                <label>Số dư:</label>
+                                                <input
+                                                    type="text"
+                                                    onChange={formikFilter.handleChange}
+                                                    value={formikFilter.values.currentMoney}
+                                                    name="currentMoney"
+                                                    placeholder="Số dư"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className={cx('footer')}>
+                                            <Button
+                                                yellow
+                                                leftIcon={<FontAwesomeIcon icon={faTrashCan} />}
+                                                onClick={handleResetFilter}
+                                            >
+                                                Đặt lại
+                                            </Button>
+                                            <Button
+                                                primary
+                                                type="submit"
+                                                leftIcon={<FontAwesomeIcon icon={faSearch} />}
+                                            >
+                                                Tra cứu
+                                            </Button>
+                                        </div>
+                                    </form>
+                                </div>
+                            )}
+                            onClickOutside={() => setShowFilter(false)}
+                            placement="bottom-end"
+                        >
+                            <button
+                                className={cx('filter-btn', { active: activeFilter })}
+                                onClick={() => setShowFilter(!showFilter)}
+                            >
+                                <span className={cx('icon')}>
+                                    <FontAwesomeIcon icon={faSearch} />
+                                </span>
+                                Tra cứu
+                            </button>
+                        </HeadlessTippy>
                     </div>
 
                     <Button to="/sotietkiem/moso" primary leftIcon={<FontAwesomeIcon icon={faCirclePlus} />}>

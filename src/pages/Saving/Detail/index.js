@@ -22,10 +22,6 @@ const validationSchema = Yup.object({
         .required('Trường này bắt buộc'),
     nameCustomer: Yup.string().max(50, 'Tên không được quá 50 kí tự').required('Trường này bắt buộc'),
     addressCustomer: Yup.string().max(250, 'Địa chỉ không được quá 250 kí tự').required('Trường này bắt buộc'),
-    money: Yup.number()
-        .typeError('Tiền gởi phải là số')
-        .min(minMoney, `Tiền gửi tối thiểu là ${minMoney}`)
-        .required('Trường này bắt buộc'),
 });
 
 function Detail() {
@@ -73,7 +69,7 @@ function Detail() {
             nameCustomer: '',
             addressCustomer: '',
             dateCreate: moment().format('YYYY-MM-DD'),
-            money: 0,
+            totalMoney: 0,
         },
         validationSchema,
         onSubmit: handleUpdateSaving,
@@ -97,7 +93,7 @@ function Detail() {
 
     useEffect(() => {
         // Call api saving
-        fetch(`${process.env.REACT_APP_API_URL}/saving/${id}`)
+        fetch(`${process.env.REACT_APP_API_URL}/saving/${id}?currentDay=${moment().format('YYYY-MM-DD')}`)
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
@@ -111,7 +107,7 @@ function Detail() {
                         addressCustomer: data.saving.customer.address || '',
                         dateCreate:
                             moment(data.saving.dateCreate).format('YYYY-MM-DD') || moment().format('YYYY-MM-DD'),
-                        money: data.saving.currentMoney || 0,
+                        totalMoney: data.saving.totalMoney || data.saving.currentMoney,
                     });
                 } else {
                     setSaving({});
@@ -253,20 +249,17 @@ function Detail() {
                                 />
                                 <div className={cx('error-message')}>{formik.errors.addressCustomer}</div>
                             </div>
-                            <div
-                                className={cx('input', {
-                                    error: formik.touched.money && formik.errors.money,
-                                })}
-                            >
-                                <label>Số tiền gởi</label>
+                            <div className={cx('input')}>
+                                <label>Số dư</label>
                                 <input
                                     type="text"
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
-                                    value={formik.values.money}
+                                    value={formik.values.totalMoney}
                                     name="money"
+                                    disabled
                                 />
-                                <div className={cx('error-message')}>{formik.errors.money}</div>
+                                <div className={cx('error-message')}>{}</div>
                             </div>
                         </div>
                     </div>

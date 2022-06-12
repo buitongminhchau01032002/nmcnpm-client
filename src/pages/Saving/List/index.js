@@ -8,6 +8,8 @@ import {
     faSearch,
     faTrashCan,
 } from '@fortawesome/free-solid-svg-icons';
+import moment from 'moment';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import HeadlessTippy from '@tippyjs/react/headless';
 import classNames from 'classnames/bind';
@@ -42,7 +44,10 @@ function List() {
         }
         setActiveFilter(Object.keys(filterObject).length === 0 ? false : true);
         // Call api saving
-        fetch(`${process.env.REACT_APP_API_URL}/saving/filter?` + new URLSearchParams(filterObject))
+        fetch(
+            `${process.env.REACT_APP_API_URL}/saving/filter?` +
+                new URLSearchParams({ ...filterObject, currentDay: moment().format('YYYY-MM-DD') }),
+        )
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
@@ -61,7 +66,7 @@ function List() {
             id: '',
             nameCustomer: '',
             typeSavingId: '',
-            currentMoney: '',
+            totalMoney: '',
         },
         onSubmit: handleFilter,
     });
@@ -84,7 +89,7 @@ function List() {
 
     useEffect(() => {
         // Call api saving
-        fetch(`${process.env.REACT_APP_API_URL}/saving`)
+        fetch(`${process.env.REACT_APP_API_URL}/saving?currentDay=${moment().format('YYYY-MM-DD')}`)
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
@@ -104,7 +109,7 @@ function List() {
             id: '',
             nameCustomer: '',
             typeSavingId: '',
-            currentMoney: '',
+            totalMoney: '',
         });
         setActiveFilter(false);
 
@@ -180,8 +185,8 @@ function List() {
                                                 <input
                                                     type="text"
                                                     onChange={formikFilter.handleChange}
-                                                    value={formikFilter.values.currentMoney}
-                                                    name="currentMoney"
+                                                    value={formikFilter.values.totalMoney}
+                                                    name="totalMoney"
                                                     placeholder="Số dư"
                                                 />
                                             </div>
@@ -252,7 +257,7 @@ function List() {
                                             {saving.customer.name}
                                         </Link>
                                     </td>
-                                    <td>{saving.currentMoney}</td>
+                                    <td>{saving.totalMoney}</td>
                                     <td className={cx('td-action')}>
                                         <Button
                                             to={'/sotietkiem/chitiet/' + saving.id}

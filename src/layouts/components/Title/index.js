@@ -28,6 +28,14 @@ const TITLES = [
         path: '/khachhang/chitiet/:id',
         title: 'Chi tiết khách hàng',
     },
+    {
+        path: '/giaodich/goitien',
+        title: 'Gởi tiền',
+    },
+    {
+        path: '/giaodich/ruttien',
+        title: 'Rút tiền',
+    },
 ];
 
 function Title() {

@@ -40,6 +40,7 @@ function Deposit() {
                 } else {
                     setIsSuccess(false);
                     setModalIsOpen(true);
+                    console.log('api error message', data.message);
                 }
                 setPendingCreate(false);
             })
@@ -191,6 +192,7 @@ function Deposit() {
                         <Button
                             disabled={!(formik.isValid && formik.dirty) || pendingCreate}
                             primary
+                            type="submit"
                             leftIcon={<FontAwesomeIcon icon={faRightToBracket} />}
                         >
                             Gởi tiền

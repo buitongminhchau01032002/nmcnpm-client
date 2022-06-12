@@ -36,6 +36,14 @@ const TITLES = [
         path: '/giaodich/ruttien',
         title: 'Rút tiền',
     },
+    {
+        path: '/baocao/doanhso',
+        title: 'Báo cáo doanh số ngày',
+    },
+    {
+        path: '/baocao/dongmo',
+        title: 'Báo cáo đóng/mở tháng',
+    },
 ];
 
 function Title() {

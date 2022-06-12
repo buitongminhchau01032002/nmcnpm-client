@@ -137,6 +137,22 @@ function Day() {
                         )}
                     </tbody>
                 </table>
+                <div>
+                    {reports.length > 0 ? (
+                        <div>
+                            <div>
+                                Tổng thu:
+                                {reports.reduce((prev, report) => prev + report.tongThu, 0)}
+                            </div>
+                            <div>
+                                Tổng chi:
+                                {reports.reduce((prev, report) => prev + report.tongChi, 0)}
+                            </div>
+                        </div>
+                    ) : (
+                        <></>
+                    )}
+                </div>
             </div>
         </div>
     );

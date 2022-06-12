@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
-import { faCircleArrowLeft, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCircleArrowLeft, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames/bind';
 import { useFormik } from 'formik';
@@ -29,10 +29,36 @@ function Detail() {
     const [typeSavings, setTypeSavings] = useState([]);
     const [existedCustomer, setExistedCustomer] = useState(false);
     const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [modalIsOpenDel, setModalIsOpenDel] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [isSuccessDel, setIsSuccessDel] = useState(false);
     const [pendingUpdate, setPendingUpdate] = useState(false);
+    const [pendingDel, setPendingDel] = useState(false);
     const { id } = useParams();
     const navigate = useNavigate();
+
+    const handleDelete = () => {
+        setPendingDel(true);
+        fetch(`${process.env.REACT_APP_API_URL}/saving/${id}`, {
+            method: 'DELETE',
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    setModalIsOpenDel(true);
+                    setIsSuccessDel(true);
+                } else {
+                    setIsSuccessDel(false);
+                    setModalIsOpenDel(true);
+                }
+                setPendingDel(false);
+            })
+            .catch((error) => {
+                setIsSuccessDel(false);
+                setModalIsOpenDel(true);
+                setPendingDel(false);
+            });
+    };
 
     const handleUpdateSaving = (values) => {
         setPendingUpdate(true);
@@ -159,6 +185,25 @@ function Detail() {
             >
                 {isSuccess ? 'Cập nhật sổ thành công' : 'Cập nhật sổ không thành công'}
             </Modall>
+            <Modall
+                isOpen={modalIsOpenDel}
+                buttons={
+                    <>
+                        {isSuccessDel && (
+                            <Button primary to="/sotietkiem/danhsach">
+                                Danh sách
+                            </Button>
+                        )}
+
+                        <Button yellow onClick={() => setModalIsOpenDel(false)}>
+                            Đóng
+                        </Button>
+                    </>
+                }
+                heading="Thông báo"
+            >
+                {isSuccessDel ? 'Xoá sổ thành công' : 'Xoá sổ không thành công'}
+            </Modall>
             <form onSubmit={formik.handleSubmit}>
                 <div className={cx('body')}>
                     <div className={cx('input-group')}>
@@ -264,6 +309,14 @@ function Detail() {
                         </div>
                     </div>
                     <div className={cx('btn-group')}>
+                        <Button
+                            disabled={pendingDel}
+                            onClick={handleDelete}
+                            red
+                            leftIcon={<FontAwesomeIcon icon={faCircleXmark} />}
+                        >
+                            Xoá
+                        </Button>
                         <Button
                             onClick={() => navigate(-1)}
                             yellow

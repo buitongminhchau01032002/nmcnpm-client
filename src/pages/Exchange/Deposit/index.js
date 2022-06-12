@@ -40,7 +40,6 @@ function Deposit() {
                 } else {
                     setIsSuccess(false);
                     setModalIsOpen(true);
-                    console.log('api error message', data.message);
                 }
                 setPendingCreate(false);
             })

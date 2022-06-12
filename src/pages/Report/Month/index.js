@@ -15,62 +15,37 @@ import HeadlessTippy from '@tippyjs/react/headless';
 import classNames from 'classnames/bind';
 import Button from '~/components/Button';
 import ReloadBtn from '~/components/ReloadBtn';
+import Modall from '~/components/Modall';
 
 import styles from './Month.module.scss';
 import { Link } from 'react-router-dom';
 const cx = classNames.bind(styles);
 
 function Month() {
+    const [month, setMonth] = useState(moment().format('YYYY-MM'));
+    const [reports, setReports] = useState([]);
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [pendingCreate, setPendingCreate] = useState(false);
     const [typeSavings, setTypeSavings] = useState([]);
-    const [listSaving, setListSaving] = useState([]);
-    const [activeFilter, setActiveFilter] = useState(false);
-    const [showFilter, setShowFilter] = useState(false);
-    const handleFilter = (values) => {
-        const filterObject = {};
-        if (values.id) {
-            filterObject.id = values.id;
-        }
-        if (values.typeSavingId) {
-            filterObject.typeSavingId = values.typeSavingId;
-        }
-        if (values.nameCustomer) {
-            filterObject.nameCustomer = values.nameCustomer;
-        }
-        if (values.currentMoney) {
-            filterObject.currentMoney = values.currentMoney;
-        }
-        if (values.currentMoney) {
-            filterObject.currentMoney = values.currentMoney;
-        }
-        setActiveFilter(Object.keys(filterObject).length === 0 ? false : true);
-        // Call api saving
-        fetch(
-            `${process.env.REACT_APP_API_URL}/saving/filter?` +
-                new URLSearchParams({ ...filterObject, currentDay: moment().format('YYYY-MM-DD') }),
-        )
+    const [typeSavingId, setTypeSavingId] = useState(-1);
+
+    useEffect(() => {
+        // Call api report
+        fetch(`${process.env.REACT_APP_API_URL}/reportmonth/${month}?typeSavingId=${typeSavingId}`)
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
-                    setListSaving(data.savings);
+                    setReports(data.reports);
                 } else {
-                    setListSaving([]);
+                    setReports([]);
                 }
             })
             .catch((error) => {
-                setListSaving([]);
+                setReports([]);
             });
-        setShowFilter(false);
-    };
-    const formikFilter = useFormik({
-        initialValues: {
-            id: '',
-            nameCustomer: '',
-            typeSavingId: '',
-            totalMoney: '',
-        },
-        onSubmit: handleFilter,
-    });
-
+    }, [month, typeSavingId]);
+    console.log(reports);
     useEffect(() => {
         // Call api type saving
         fetch(`${process.env.REACT_APP_API_URL}/typesaving`)
@@ -78,6 +53,7 @@ function Month() {
             .then((data) => {
                 if (data.success) {
                     setTypeSavings(data.typeSavings);
+                    setTypeSavingId(data.typeSavings[0].id);
                 } else {
                     setTypeSavings([]);
                 }
@@ -85,211 +61,119 @@ function Month() {
             .catch((error) => {
                 setTypeSavings([]);
             });
-    }, []);
+    }, [month]);
 
-    useEffect(() => {
-        // Call api saving
-        fetch(`${process.env.REACT_APP_API_URL}/saving?currentDay=${moment().format('YYYY-MM-DD')}`)
+    const handleCreateReport = () => {
+        setPendingCreate(true);
+        // Call api create report
+        fetch(`${process.env.REACT_APP_API_URL}/reportmonth`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({ month }),
+        })
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
-                    setListSaving(data.savings);
+                    // Call api report
+                    fetch(`${process.env.REACT_APP_API_URL}/reportmonth/${month}?typeSavingId=${typeSavingId}`)
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data.success) {
+                                setReports(data.reports || []);
+                            } else {
+                                setReports([]);
+                            }
+                        })
+                        .catch((error) => {
+                            setReports([]);
+                        });
+                    setModalIsOpen(true);
+                    setIsSuccess(true);
                 } else {
-                    setListSaving([]);
+                    setModalIsOpen(true);
+                    setIsSuccess(false);
                 }
+                setPendingCreate(false);
             })
             .catch((error) => {
-                setListSaving([]);
-            });
-    }, []);
-
-    const handleResetFilter = (e) => {
-        e.preventDefault();
-        formikFilter.setValues({
-            id: '',
-            nameCustomer: '',
-            typeSavingId: '',
-            totalMoney: '',
-        });
-        setActiveFilter(false);
-
-        // Call api saving
-        fetch(`${process.env.REACT_APP_API_URL}/saving`)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success) {
-                    setListSaving(data.savings);
-                } else {
-                    setListSaving([]);
-                }
-            })
-            .catch((error) => {
-                setListSaving([]);
+                setReports([]);
+                setModalIsOpen(true);
+                setIsSuccess(true);
+                setPendingCreate(false);
             });
     };
 
     return (
         <div className={cx('wrapper')}>
+            <Modall
+                isOpen={modalIsOpen}
+                buttons={
+                    <>
+                        <Button yellow onClick={() => setModalIsOpen(false)}>
+                            Đóng
+                        </Button>
+                    </>
+                }
+                heading="Thông báo"
+            >
+                {isSuccess ? 'Tạo báo cáo thành công' : 'Tạo báo cáo không thành công'}
+            </Modall>
             <div className={cx('top-bar')}>
                 <div className={cx('left')}>
-                    <p className="heading-list">Danh sách sổ</p>
+                    <p className="heading-list">Danh sách báo cáo đóng/mở sổ</p>
                     <ReloadBtn />
                 </div>
-                <div className={cx('right')}>
-                    <div>
-                        <HeadlessTippy
-                            interactive
-                            visible={showFilter}
-                            render={(attrs) => (
-                                <div className={cx('filter-panel')} {...attrs}>
-                                    <div className={cx('header')}>Tra cứu sổ tiết kiệm</div>
-                                    <form onSubmit={formikFilter.handleSubmit}>
-                                        <div className={cx('content')}>
-                                            <div className={cx('input')}>
-                                                <label>Mã sổ:</label>
-                                                <input
-                                                    type="text"
-                                                    onChange={formikFilter.handleChange}
-                                                    value={formikFilter.values.id}
-                                                    name="id"
-                                                    placeholder="Mã sổ"
-                                                />
-                                            </div>
-                                            <div className={cx('input')}>
-                                                <label>Loại tiết kiệm:</label>
-                                                <select
-                                                    onChange={formikFilter.handleChange}
-                                                    value={formikFilter.values.typeSavingId}
-                                                    name="typeSavingId"
-                                                >
-                                                    <option value="">Tất cả</option>
-                                                    {typeSavings.map((typeSaving) => (
-                                                        <option key={typeSaving.id} value={typeSaving.id}>
-                                                            {typeSaving.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div className={cx('input')}>
-                                                <label>Khách hàng:</label>
-                                                <input
-                                                    type="text"
-                                                    onChange={formikFilter.handleChange}
-                                                    value={formikFilter.values.nameCustomer}
-                                                    name="nameCustomer"
-                                                    placeholder="Tên khách hàng"
-                                                />
-                                            </div>
-                                            <div className={cx('input')}>
-                                                <label>Số dư:</label>
-                                                <input
-                                                    type="text"
-                                                    onChange={formikFilter.handleChange}
-                                                    value={formikFilter.values.totalMoney}
-                                                    name="totalMoney"
-                                                    placeholder="Số dư"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className={cx('footer')}>
-                                            <Button
-                                                yellow
-                                                leftIcon={<FontAwesomeIcon icon={faTrashCan} />}
-                                                onClick={handleResetFilter}
-                                            >
-                                                Đặt lại
-                                            </Button>
-                                            <Button
-                                                primary
-                                                type="submit"
-                                                leftIcon={<FontAwesomeIcon icon={faSearch} />}
-                                            >
-                                                Tra cứu
-                                            </Button>
-                                        </div>
-                                    </form>
-                                </div>
-                            )}
-                            onClickOutside={() => setShowFilter(false)}
-                            placement="bottom-end"
-                        >
-                            <button
-                                className={cx('filter-btn', { active: activeFilter })}
-                                onClick={() => setShowFilter(!showFilter)}
-                            >
-                                <span className={cx('icon')}>
-                                    <FontAwesomeIcon icon={faSearch} />
-                                </span>
-                                Tra cứu
-                            </button>
-                        </HeadlessTippy>
-                    </div>
-
-                    <Button to="/sotietkiem/moso" primary leftIcon={<FontAwesomeIcon icon={faCirclePlus} />}>
-                        Mở sổ
-                    </Button>
+                <div className={cx('input')}>
+                    <select onChange={(e) => setTypeSavingId(e.target.value)} value={typeSavingId} name="typeSavingId">
+                        {typeSavings.map((typeSaving) => (
+                            <option key={typeSaving.id} value={typeSaving.id}>
+                                {typeSaving.name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
+                <div className={cx('input')}>
+                    <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} name="monthCreate" />
+                </div>
+                <Button
+                    disabled={pendingCreate}
+                    onClick={handleCreateReport}
+                    primary
+                    leftIcon={<FontAwesomeIcon icon={faCirclePlus} />}
+                >
+                    Tạo báo cáo
+                </Button>
             </div>
             <div className={cx('list')}>
                 <table className={cx('table')}>
                     <thead className="table-header">
                         <tr>
                             <th>STT</th>
-                            <th>Mã số</th>
-                            <th>Loại tiết kiệm</th>
-                            <th>Khách hàng</th>
-                            <th>Số dư</th>
-                            <th></th>
+                            <th>Ngày</th>
+                            <th>Sổ mở</th>
+                            <th>Sổ đóng</th>
+                            <th>Chênh lệch</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {listSaving ? (
-                            listSaving.map((saving, index) => (
-                                <tr key={saving.id}>
+                        {reports.length > 0 ? (
+                            reports.map((report, index) => (
+                                <tr key={index}>
                                     <td>{index + 1}</td>
-                                    <td>{saving.id}</td>
-                                    <td>{saving.typeSaving.name}</td>
-                                    <td>
-                                        <Link
-                                            className={cx('customer-link')}
-                                            to={'/khachhang/chitiet/' + saving.customer.id}
-                                        >
-                                            {saving.customer.name}
-                                        </Link>
-                                    </td>
-                                    <td>{saving.totalMoney}</td>
-                                    <td className={cx('td-action')}>
-                                        <Button
-                                            to={'/sotietkiem/chitiet/' + saving.id}
-                                            primary
-                                            small
-                                            leftIcon={<FontAwesomeIcon icon={faEye} />}
-                                        >
-                                            Xem
-                                        </Button>
-
-                                        <Button
-                                            to={'/giaodich/goitien?redirect=' + saving.id}
-                                            green
-                                            small
-                                            leftIcon={<FontAwesomeIcon icon={faRightToBracket} />}
-                                        >
-                                            Gởi
-                                        </Button>
-
-                                        <Button
-                                            to={'/giaodich/ruttien?redirect=' + saving.id}
-                                            yellow
-                                            small
-                                            leftIcon={<FontAwesomeIcon icon={faRightFromBracket} />}
-                                        >
-                                            Rút
-                                        </Button>
-                                    </td>
+                                    <td>{moment(report.date).format('DD/MM/YYYY')}</td>
+                                    <td>{report.soMo}</td>
+                                    <td>{report.soDong}</td>
+                                    <td>{report.chenhLech}</td>
                                 </tr>
                             ))
                         ) : (
-                            <div>Không có sổ tiết kiệm</div>
+                            <tr>
+                                <td colSpan="5" className={cx('no-report')}>
+                                    Chưa có báo cáo
+                                </td>
+                            </tr>
                         )}
                     </tbody>
                 </table>

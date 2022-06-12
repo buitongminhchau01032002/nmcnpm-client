@@ -180,7 +180,7 @@ function List() {
                                                     placeholder="Tên khách hàng"
                                                 />
                                             </div>
-                                            <div className={cx('input')}>
+                                            <div className={cx('input')} style={{ display: 'none' }}>
                                                 <label>Số dư:</label>
                                                 <input
                                                     type="text"

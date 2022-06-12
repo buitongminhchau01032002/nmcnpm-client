@@ -103,9 +103,7 @@ const MENU = [
 function Sidebar() {
     return (
         <div className={cx('wrapper')}>
-            <header className={cx('header')}>
-                <img className={cx('logo')} src="" alt="logo" />
-            </header>
+            <header className={cx('header')}></header>
             <div className={cx('menu-list')}>
                 {MENU.map((item, index) =>
                     !item.sub ? (

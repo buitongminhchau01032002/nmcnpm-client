@@ -37,7 +37,8 @@ function Detail() {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    const handleDelete = () => {
+    const handleDelete = (e) => {
+        e.preventDefault();
         setPendingDel(true);
         fetch(`${process.env.REACT_APP_API_URL}/saving/${id}`, {
             method: 'DELETE',

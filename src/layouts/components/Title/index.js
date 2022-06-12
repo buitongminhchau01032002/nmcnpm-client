@@ -44,6 +44,22 @@ const TITLES = [
         path: '/baocao/dongmo',
         title: 'Báo cáo đóng/mở tháng',
     },
+    {
+        path: '/loaitietkiem/danhsach',
+        title: 'Danh sách loại tiết kiệm',
+    },
+    {
+        path: '/loaitietkiem/tao',
+        title: 'Tạo loại tiết kiệm',
+    },
+    {
+        path: '/loaitietkiem/chitiet/:id',
+        title: 'Chi tiết loại tiết kiệm',
+    },
+    {
+        path: '/quydinh',
+        title: 'Quy định',
+    },
 ];
 
 function Title() {

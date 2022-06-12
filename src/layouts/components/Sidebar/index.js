@@ -5,6 +5,7 @@ import {
     faChevronRight,
     faCirclePlus,
     faHomeAlt,
+    faGear,
     faMoneyBillTransfer,
     faRectangleList,
     faRightFromBracket,
@@ -19,11 +20,6 @@ import SubMenuHeader from '~/components/SubMenuHeader';
 const cx = classNames.bind(styles);
 
 const MENU = [
-    {
-        title: 'Trang chủ',
-        icon: faHomeAlt,
-        to: '/',
-    },
     {
         title: 'Sổ tiết kiệm',
         icon: faBook,
@@ -70,19 +66,36 @@ const MENU = [
         sub: [
             {
                 title: 'Doanh số',
-                icon: faRightFromBracket,
+                icon: faBook,
                 to: '/doanhso',
             },
             {
                 title: 'Đóng/mở sổ',
-                icon: faRightToBracket,
+                icon: faBook,
                 to: '/dongmo',
             },
         ],
     },
     {
+        title: 'Loại tiết kiệm',
+        icon: faBook,
+        to: '/loaitietkiem',
+        sub: [
+            {
+                title: 'Danh sách',
+                icon: faRectangleList,
+                to: '/danhsach',
+            },
+            {
+                title: 'Tạo mới',
+                icon: faCirclePlus,
+                to: '/tao',
+            },
+        ],
+    },
+    {
         title: 'Quy định',
-        icon: faHomeAlt,
+        icon: faGear,
         to: '/quydinh',
     },
 ];
